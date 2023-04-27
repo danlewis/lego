@@ -24,10 +24,17 @@
                     display: flex;
                     justify-content: center;
                 }
+                .filtersToggle{
+                    display: none;
+                }
             }
             @media (max-width:599px)  {
                 .left-panel{
                     display: none;
+                }
+                .left-panel.show{
+                    display: block;
+                    margin-bottom: 10px;
                 }
                 .ais-InfiniteHits-item{
                     box-shadow: none;
@@ -56,6 +63,10 @@
                     justify-content: center;
                     overflow: hidden;
                 }
+                .filtersToggle{
+                    display: inline-flex;
+                }
+                
             }
             .hitItem{
                 font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
@@ -116,6 +127,27 @@
                 display: inline-block;
                 margin-right: 8px;
             }
+            .filtersToggle{
+                border-radius: 3px;
+                height: 26px;
+                min-width: 110px;
+                align-items: center;
+                background: none;
+                border: none;
+                color: inherit;
+                cursor: pointer;
+                -webkit-appearance: button;
+                margin-bottom: 20px;
+            }
+            .filtersToggle > svg{
+                height: 13px;
+                margin-right: 8px;
+                width: 13px;
+                display: block;
+            }
+            .ais-PoweredBy{
+                font-size: 0.6rem;
+            }
         </style>
     </head>
     <body>
@@ -123,6 +155,12 @@
             <h1>Pick a Brick</h1>
 
             <div id="searchbox"></div>
+
+            <button class="filtersToggle" onclick="toggleFilters();">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="ShowFilters_Icon"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
+                </svg>
+                <span>Filters</span>
+            </button>
 
             <div class="panels">
                 <div class="left-panel">
@@ -137,6 +175,8 @@
                     <div id="pagination"></div>
                 </div>
             </div>
+
+            <div id="powered-by"></div>
           </div>
 
           <script type="text/javascript">
@@ -144,19 +184,19 @@
 
             const search = instantsearch({
               indexName: 'parts_list',
-              searchClient,
+              searchClient
             });
             
             search.addWidgets([
               instantsearch.widgets.searchBox({
-                container: '#searchbox',
+                container: '#searchbox'
               }),
             
               instantsearch.widgets.infiniteHits({
                 container: '#hits',
                 templates: {
                     item: `
-                        <div class="hitItem" onClick="hitItemClick({{ objectID }})" id="hitItem-{{ objectID }}">
+                        <div class="hitItem" onClick="hitItemClick('{{ objectID }}')" id="hitItem-{{ objectID }}">
                             <div class="Image">
                                 <picture class="stl-flex stl-items-center stl-justify-center"><img src="{{ image_url }}"></picture>
                             </div>
@@ -191,6 +231,14 @@
                   },
               }),
 
+              instantsearch.widgets.clearRefinements({
+                container: '#clear-refinements',
+              }),
+
+              instantsearch.widgets.poweredBy({
+                container: '#powered-by',
+              }),
+
               instantsearch.widgets.refinementList({
                 container: '#categories-list',
                 attribute: 'category_name',
@@ -203,8 +251,12 @@
             search.start();
 
             function hitItemClick(id) {
-                console.log(id);
                 var element = document.querySelector(`#hitItem-${id} .inventoryList`);
+                element.classList.toggle("show");
+            }
+
+            function toggleFilters(){
+                var element = document.querySelector('.left-panel');
                 element.classList.toggle("show");
             }
 
