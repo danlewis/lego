@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Pick a Brick</title>
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <meta charset="utf-8">
+        <script src="https://cdn.jsdelivr.net/npm/algoliasearch@4.17.0/dist/algoliasearch-lite.umd.js" integrity="sha256-Lf9DrpGmcRip6OQzbcL6lnvNmoZNSKpyQX5pMlwatWE=" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/instantsearch.js@4.55.0/dist/instantsearch.production.min.js" integrity="sha256-aRxUroY27yHj7g0t6OfxRaGP1NIgtuperOoNVzgUSys=" crossorigin="anonymous"></script>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/instantsearch.css@8.0.0/themes/satellite-min.css" integrity="sha256-p/rGN4RGy6EDumyxF9t7LKxWGg6/MZfGhJM/asKkqvA=" crossorigin="anonymous">
+
+        <style type="text/css">
+            body { font-family: sans-serif; padding: 1em; }
+            .ais-SearchBox { margin: 1em 0; }
+            
+            @media (min-width:600px)  {
+                .ais-InfiniteHits-list {
+                    display: grid;
+                    grid-template-columns: auto auto auto auto;	
+                    grid-gap: 10px;
+                    padding: 10px;	
+                }
+                .panels{
+                    display: flex;
+                    justify-content: center;
+                }
+            }
+            @media (max-width:599px)  {
+                .left-panel{
+                    display: none;
+                }
+                .ais-InfiniteHits-item{
+                    box-shadow: none;
+                    padding: 0;
+                }
+                .hitItem{
+                    display: flex;
+                    margin-bottom: 24px;
+                }
+                .hitItem .Attributes{
+                    flex-grow: 1;
+                    flex: 1;
+                }
+                .hitItem .FirstRow{
+                    align-items: center;
+                    display: flex;
+                    justify-content: space-between;
+                    margin-bottom: 8px;
+                }
+                .hitItem .Image{
+                    margin-right: 16px;
+                    flex: 0 0 89px;
+                    height: 100%;
+                    align-items: center;
+                    display: flex;
+                    justify-content: center;
+                    overflow: hidden;
+                }
+            }
+            .hitItem{
+                font-family: -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Helvetica Neue,Arial,Noto Sans,sans-serif,Apple Color Emoji,Segoe UI Emoji,Segoe UI Symbol,Noto Color Emoji;
+                font-weight: 300;
+            }
+            .hitItem .PrimaryAttribute, 
+            .hitItem .SecondaryAttribute,
+            .hitItem .ThirdAttribute {
+                -webkit-box-orient: vertical;
+                -webkit-line-clamp: 2;
+                display: -webkit-box;
+                overflow: hidden;
+            }
+            .hitItem .PrimaryAttribute {   
+                font-size: 16px;
+                font-weight: 700;
+                line-height: 24px;
+                max-height: 48px;
+            }
+            .hitItem .SecondaryAttribute,
+            .hitItem .ThirdAttribute{
+                font-size: 14px;
+                line-height: 20px;
+                margin-bottom: 12px;
+                max-height: 40px;
+            }
+            .inventoryList{
+                list-style-type: none;
+                padding-left: 0;
+                display: none;
+            }
+            .inventoryList.show{
+                display: block;
+            }
+            .inventoryItem{
+                display: flex;
+            }
+            .hitItem .Image img{
+                width: 100%;
+            }
+            .colorCount{
+                align-items: center;
+                background: #f5f5fa;
+                border: 1px solid #d6d6e7;
+                border-radius: 93px;
+                box-sizing: border-box;
+                color: #5a5e9a;
+                font-size: 12px;
+                height: 16px;
+                line-height: 16px;
+                margin-left: auto;
+                padding: 0 8px;
+            }
+            .colorBox{
+                width: 16px;
+                height: 16px;
+                border: 1px solid #d6d6e7;
+                display: inline-block;
+                margin-right: 8px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="ais-InstantSearch">
+            <h1>Pick a Brick</h1>
+
+            <div id="searchbox"></div>
+
+            <div class="panels">
+                <div class="left-panel">
+                    <div id="clear-refinements"></div>
+                
+                    <h2>Categories</h2>
+                    <div id="categories-list"></div>
+                </div>
+            
+                <div class="right-panel">
+                    <div id="hits"></div>
+                    <div id="pagination"></div>
+                </div>
+            </div>
+          </div>
+
+          <script type="text/javascript">
+            const searchClient = algoliasearch('G74GXTB059', '548d4db3d00f511152595dd12f4d9a74');
+
+            const search = instantsearch({
+              indexName: 'parts_list',
+              searchClient,
+            });
+            
+            search.addWidgets([
+              instantsearch.widgets.searchBox({
+                container: '#searchbox',
+              }),
+            
+              instantsearch.widgets.infiniteHits({
+                container: '#hits',
+                templates: {
+                    item: `
+                        <div class="hitItem" onClick="hitItemClick({{ objectID }})" id="hitItem-{{ objectID }}">
+                            <div class="Image">
+                                <picture class="stl-flex stl-items-center stl-justify-center"><img src="{{ image_url }}"></picture>
+                            </div>
+                            <div class="Attributes">
+                                <div class="FirstRow">
+                                    <div class="PrimaryAttribute">
+                                        <span class="ais-Highlight"><span class="ais-Highlight-nonHighlighted">{{ name }}</span></span>
+                                    </div>
+                                </div>
+                                <div class="SecondaryAttribute">
+                                    <span class="ais-Highlight"><span class="ais-Highlight-nonHighlighted">{{ category_name }}</span></span>
+                                </div>
+                                <div class="ThirdAttribute">
+                                    <span class="ais-Highlight">
+                                        <span class="ais-Highlight-nonHighlighted">#{{ objectID }}
+                                            <span class="colorCount">{{ inventory_quantity }}</span>
+                                        </span>
+                                    </span>
+                                </div>
+
+                                <ul class="inventoryList"> 
+                                    {{#inventory}}
+                                        <li class="inventoryItem">
+                                            <span class="colorBox" style="background:#{{rgb}};"></span>
+                                            <span class="colorName">{{color}}</span>
+                                            <span class="colorCount">{{quantity}}</span></li>
+                                    {{/inventory}}
+                                </ul>
+                            </div>
+                        </div>
+                    `,
+                  },
+              }),
+
+              instantsearch.widgets.refinementList({
+                container: '#categories-list',
+                attribute: 'category_name',
+                
+                limit: 100,
+                sortBy: ['name:asc']
+              })
+            ]);
+            	            
+            search.start();
+
+            function hitItemClick(id) {
+                console.log(id);
+                var element = document.querySelector(`#hitItem-${id} .inventoryList`);
+                element.classList.toggle("show");
+            }
+
+          </script>
+          
+    </body>
+</html>		
+
+
+
