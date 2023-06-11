@@ -148,6 +148,12 @@
             .ais-PoweredBy{
                 font-size: 0.6rem;
             }
+            .identifiers{
+                display: none;
+            }
+            .identifiers.show{
+                display: block;
+            }
         </style>
     </head>
     <body>
@@ -196,12 +202,12 @@
                 container: '#hits',
                 templates: {
                     item: `
-                        <div class="hitItem" onClick="hitItemClick('{{ objectID }}')" id="hitItem-{{ objectID }}">
-                            <div class="Image">
+                        <div class="hitItem" id="hitItem-{{ objectID }}">
+                            <div class="Image" onClick="hitItemClick('{{ objectID }}')">
                                 <picture class="stl-flex stl-items-center stl-justify-center"><img src="{{ image_url }}"></picture>
                             </div>
                             <div class="Attributes">
-                                <div class="FirstRow">
+                                <div class="FirstRow" onClick="hitItemClick('{{ objectID }}')">
                                     <div class="PrimaryAttribute">
                                         <span class="ais-Highlight"><span class="ais-Highlight-nonHighlighted">{{ name }}</span></span>
                                     </div>
@@ -211,10 +217,11 @@
                                 </div>
                                 <div class="ThirdAttribute">
                                     <span class="ais-Highlight">
-                                        <span class="ais-Highlight-nonHighlighted">#{{ objectID }}
+                                        <span class="ais-Highlight-nonHighlighted" onClick="hitIdentifierClick('{{ objectID }}')">#{{ objectID }}
                                             <span class="colorCount">{{ inventory_quantity }}</span>
                                         </span>
                                     </span>
+                                    <span class="ais-Highlight identifiers">Lego: {{lego_ids}}</span>
                                 </div>
 
                                 <ul class="inventoryList"> 
@@ -252,6 +259,12 @@
 
             function hitItemClick(id) {
                 var element = document.querySelector(`#hitItem-${id} .inventoryList`);
+                element.classList.toggle("show");
+            }
+
+            function hitIdentifierClick(id) {
+                console.log(id);
+                var element = document.querySelector(`#hitItem-${id} .identifiers`);
                 element.classList.toggle("show");
             }
 
